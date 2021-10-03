@@ -1,16 +1,30 @@
+import 'package:dartz/dartz.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart';
 import 'package:movie_app/data/core/api_client.dart';
 import 'package:movie_app/data/data_sources/movie_remote_data_source.dart';
+import 'package:movie_app/data/repositories/movie_repository_impl.dart';
+import 'package:movie_app/domain/entities/app_error.dart';
+import 'package:movie_app/domain/entities/movie_entity.dart';
+import 'package:movie_app/domain/entities/no_params.dart';
+import 'package:movie_app/domain/repositories/movie_repositories.dart';
+import 'package:movie_app/domain/usecases/get_trending.dart';
 
-void main() {
+void main() async {
   Client apiClient = Client();
   MovieRemoteDataSource dataSource =
       MovieRemoteDataSourceImpl(ApiClient(apiClient));
-  dataSource.getTrending();
-  dataSource.getPopular();
-  dataSource.getComingSoon();
-  dataSource.getPlayingNow();
+  MovieRepository movieRepository = MovieRepositoryImpl(dataSource);
+  GetTrending getTrending = GetTrending(movieRepository);
+  final Either<AppError, List<MovieEntity>> eitherResponse =
+      await getTrending(NoParams());
+  eitherResponse.fold((l) {
+    print('Error');
+    print(l);
+  }, (r) {
+    print("List of movies");
+    print(r);
+  });
   runApp(MyApp());
 }
 
@@ -22,54 +36,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: MyHomePage(title: 'Flutter Demo Home Page'),
-    );
-  }
-}
-
-class MyHomePage extends StatefulWidget {
-  MyHomePage({Key key, this.title}) : super(key: key);
-
-  final String title;
-
-  @override
-  _MyHomePageState createState() => _MyHomePageState();
-}
-
-class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
-
-  void _incrementCounter() {
-    setState(() {
-      _counter++;
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.title),
-      ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            Text(
-              'You have pushed the button this many times:',
-            ),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headline4,
-            ),
-          ],
-        ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: Icon(Icons.add),
-      ),
+      home: Container(),
     );
   }
 }

@@ -26,6 +26,7 @@ dependencies:
   equatable: ^2.0.3
   flutter:
     sdk: flutter
+  get_it: ^4.0.2
   http: ^0.13.3
 
 dev_dependencies:
